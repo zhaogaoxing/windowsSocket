@@ -30,22 +30,37 @@ int _tmain(int argc, _TCHAR* argv[])
 	//接收客户端请求
 	SOCKADDR clntAddr;
 	int nSize = sizeof(SOCKADDR);
-	SOCKET clntSock = accept(servSock, (SOCKADDR*)&clntAddr, &nSize);
-	char buffer[BUF_SIZE];
-	int strLen = recv(clntSock, buffer, BUF_SIZE, 0);  //接收客户端发来的数据
-	char* sendSuccess;
+	//SOCKET clntSock = accept(servSock, (SOCKADDR*)&clntAddr, &nSize);
+	char buffer[BUF_SIZE] = {0};
+	//int strLen = recv(clntSock, buffer, BUF_SIZE, 0);  //接收客户端发来的数据
+	/*char* sendSuccess;
 	if (buffer)
 	{
 		sendSuccess = "Success";
+	}*/
+	//send(clntSock, sendSuccess, strLen+10, 0);  //将数据原样返回
+
+	while (1)
+	{
+		SOCKET clntSock = accept(servSock, (SOCKADDR*)&clntAddr, &nSize);
+		int strLen = recv(clntSock, buffer, BUF_SIZE, 0);  //接收客户端发来的数据
+
+		char* sendSuccess;
+		if (buffer)
+		{
+			sendSuccess = "Success";
+		}
+		send(clntSock, sendSuccess, strLen + 10, 0);  //将数据原样返回
+		closesocket(clntSock);
+		memset(buffer, 0, BUF_SIZE);
 	}
-	send(clntSock, sendSuccess, strLen+10, 0);  //将数据原样返回
 
 	//向客户端发送数据
-	char *str = "Hello World!";
-	send(clntSock, str, strlen(str) + sizeof(char), NULL);
+	/*char *str = "Hello World!";
+	send(clntSock, str, strlen(str) + sizeof(char), NULL);*/
 
 	//关闭套接字
-	closesocket(clntSock);
+	//closesocket(clntSock);
 	closesocket(servSock);
 
 	//终止 DLL 的使用
