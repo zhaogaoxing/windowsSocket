@@ -6,7 +6,7 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")  //加载 ws2_32.dll
-
+#define BUF_SIZE 100
 int _tmain(int argc, _TCHAR* argv[])
 {
 	WSADATA wsaData;
@@ -31,6 +31,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	SOCKADDR clntAddr;
 	int nSize = sizeof(SOCKADDR);
 	SOCKET clntSock = accept(servSock, (SOCKADDR*)&clntAddr, &nSize);
+	char buffer[BUF_SIZE];
+	int strLen = recv(clntSock, buffer, BUF_SIZE, 0);  //接收客户端发来的数据
+	char* sendSuccess;
+	if (buffer)
+	{
+		sendSuccess = "Success";
+	}
+	send(clntSock, sendSuccess, strLen+10, 0);  //将数据原样返回
 
 	//向客户端发送数据
 	char *str = "Hello World!";

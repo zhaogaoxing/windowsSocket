@@ -35,11 +35,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	send(sock,bufSend,strlen(bufSend),0);
 
 	//接收服务器传回的数据
-	char szBuffer[MAXBYTE] = { 0 };
-	recv(sock, szBuffer, MAXBYTE, NULL);
+	char bufRecv[BUF_SIZE] = { 0 };
+	recv(sock, bufRecv, BUF_SIZE, 0);
 
 	//输出接收到的数据
-	printf("Message form server: %s\n", szBuffer);
+	printf("Message form server: %s\n", bufRecv);
 
 	//关闭套接字
 	closesocket(sock);
