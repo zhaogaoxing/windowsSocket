@@ -8,10 +8,35 @@
 #include <WS2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")  //加载 ws2_32.dll
 
-#define BUF_SIZE 100
+#define BUF_SIZE 1024
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//先检查文件是否存在
+	char*filenameS = "D:\\音乐\\send.md";  //文件名
+	FILE*fpS = fopen(filenameS,"rb");
+	if (fpS==NULL)
+	{
+		printf("Cannot open file, press any key to exit!\n");
+		system("pause");
+		exit(0);
+
+	}
+
+
+	//先输入文件名，看文件是否能创建成功
+	char filename[100] = { 0 };  //文件名
+	printf("Input filename to save: ");
+	gets(filename);
+	FILE *fp = fopen(filename, "wb");  //以二进制方式打开（创建）文件
+	if (fp==NULL)
+	{
+		printf("Cannot open file, press any key to exit!\n");
+		system("pause");
+		exit(0);
+	}
+
+
 	//初始化DLL
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -30,6 +55,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	char bufSend[BUF_SIZE] = { 0 };
 	char bufRecv[BUF_SIZE] = { 0 };
 
+	char buffer[BUF_SIZE] = { 0 };  //文件缓冲区
+	int nCount;
+	int nCountS;
 	while (1)
 	{
 		//创建套接字
@@ -44,6 +72,21 @@ int _tmain(int argc, _TCHAR* argv[])
 		memset(bufSend,0,BUF_SIZE);
 		memset(bufRecv,0,BUF_SIZE);
 		closesocket(sock);
+
+		while ((nCount = recv(sock, buffer, BUF_SIZE, 0)) > 0)
+		{
+			fwrite(buffer, nCount, 1, fp);
+		}
+		puts("File transfer success!");
+		
+
+		//发送给服务端文件
+		while ((nCountS = fread(buffer, 1, BUF_SIZE, fpS)) > 0)
+		{
+			send(sock, buffer, nCount, 0);
+		}
+		shutdown(sock,SD_SEND);
+		recv(sock,buffer,BUF_SIZE,0);
 	}
 
 	//connect(sock, (SOCKADDR*)&sockAddr, sizeof(SOCKADDR));
@@ -63,7 +106,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//关闭套接字
 	//closesocket(sock);
-
+	fclose(fp);
+	fclose(fpS);
 	//终止使用 DLL
 	WSACleanup();
 
